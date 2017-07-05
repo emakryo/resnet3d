@@ -25,8 +25,8 @@ def build_input(data_path, batch_size, size, mode):
     batch_size: Input batch size.
     mode: Either 'train' or 'eval'.
   Returns:
-    images: Batches of images. [batch_size, volume_size, volume_size, volume_size]
-    labels: Batches of labels. [batch_size, num_classes]
+    volumes: Batches of volumes. [batch_size, volume_size, volume_size, volume_size]
+    targets: Batches of targets. [batch_size]
   Raises:
     ValueError: when the specified dataset is not supported.
   """
@@ -38,10 +38,10 @@ def build_input(data_path, batch_size, size, mode):
   _, value = reader.read(file_queue)
   features = tf.parse_single_example(
       value,
-      features={'volume': tf.FixedLenFeature([size, size, size], tf.int64),
-                'target': tf.FixedLenFeature([1], tf.int64)})
-  print(features['target'])
-  volume = tf.cast(tf.reshape(features['volume'], (size, size, size)),
+      features={'volume': tf.FixedLenFeature([], tf.string),
+                'target': tf.FixedLenFeature([], tf.int64)})
+  volume = tf.cast(tf.reshape(tf.decode_raw(features['volume'], tf.int32),
+                              (size, size, size)),
                    tf.float32)
   target = tf.cast(features['target'], tf.float32)
 
@@ -50,13 +50,13 @@ def build_input(data_path, batch_size, size, mode):
         capacity=16 * batch_size,
         min_after_dequeue=8 * batch_size,
         dtypes=[tf.float32, tf.float32],
-        shapes=[[size, size, size], [1]])
+        shapes=[[size, size, size], []])
     num_threads = 16
   else:
     example_queue = tf.FIFOQueue(
         3 * batch_size,
         dtypes=[tf.float32, tf.float32],
-        shapes=[[size, size, size], [1]])
+        shapes=[[size, size, size], []])
     num_threads = 1
 
   example_enqueue_op = example_queue.enqueue([volume, target])
@@ -65,14 +65,24 @@ def build_input(data_path, batch_size, size, mode):
 
   # Read 'batch' labels + images from the example queue.
   volumes, targets = example_queue.dequeue_many(batch_size)
-  # targets = tf.reshape(targets, [batch_size, 1])
 
   assert len(volumes.get_shape()) == 4
   assert volumes.get_shape()[0] == batch_size
-  assert len(targets.get_shape()) == 2
+  assert len(targets.get_shape()) == 1
   assert targets.get_shape()[0] == batch_size
-  assert targets.get_shape()[1] == 1
 
   # Display the training images in the visualizer.
   # tf.summary.image('images', images)
   return volumes, targets
+
+def test():
+  vol, tgt = build_input('./tmp.tfrecord', 4, 16, 'train')
+  with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+    vol = sess.run(vol)
+    print(vol[0,0,0,0], vol.shape)
+
+if __name__=='__main__':
+  test()

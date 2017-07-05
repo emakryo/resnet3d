@@ -9,7 +9,10 @@ tf.app.flags.DEFINE_integer('bsize', 16, 'Length of each input')
 tf.app.flags.DEFINE_string('filename', 'data.tfrecord', 'File name for converted data')
 
 def _int64_feature(value):
-    return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+
+def _bytes_feature(value):
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def convert(pet_data, ct_data, mask_data, writer, size=16):
     xd, yd, zd = pet_data.shape
@@ -25,9 +28,9 @@ def convert(pet_data, ct_data, mask_data, writer, size=16):
         target = pet_data[x, y, z]
         example = tf.train.Example(features=tf.train.Features(
             feature={
-                'size': _int64_feature([size]),
-                'volume': _int64_feature(volume.reshape(-1)),
-                'target': _int64_feature([target])}))
+                'size': _int64_feature(size),
+                'volume': _bytes_feature(volume.astype(np.int32).tobytes()),
+                'target': _int64_feature(target)}))
         writer.write(example.SerializeToString())
 
 def _main(_):
@@ -42,9 +45,9 @@ def _main(_):
 
 def main(_):
     filename = 'tmp.tfrecord'
-    pet_data = (np.random.rand(30, 30, 30)*100).astype(int)
-    ct_data = (np.random.rand(30, 30, 30)*100).astype(int)
-    mask_data = (np.random.rand(30, 30, 30)*3).astype(int)
+    pet_data = (np.random.rand(100, 100, 100)*100).astype(int)
+    ct_data = (np.random.rand(100, 100, 100)*100).astype(int)
+    mask_data = (np.random.rand(100, 100, 100)*3).astype(int)
     with tf.python_io.TFRecordWriter(filename) as writer:
         convert(pet_data, ct_data, mask_data, writer, 16)
 

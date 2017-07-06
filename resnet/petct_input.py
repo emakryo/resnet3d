@@ -32,7 +32,7 @@ def build_input(data_path, batch_size, size, mode):
   """
 
   data_files = tf.gfile.Glob(data_path)
-  file_queue = tf.train.string_input_producer(data_files, shuffle=True)
+  file_queue = tf.train.string_input_producer(data_files, num_epochs=50, shuffle=True)
   # Read examples from files in the filename queue.
   reader = tf.TFRecordReader()
   _, value = reader.read(file_queue)
@@ -40,7 +40,7 @@ def build_input(data_path, batch_size, size, mode):
       value,
       features={'volume': tf.FixedLenFeature([], tf.string),
                 'target': tf.FixedLenFeature([], tf.int64)})
-  volume = tf.cast(tf.reshape(tf.decode_raw(features['volume'], tf.int32),
+  volume = tf.cast(tf.reshape(tf.decode_raw(features['volume'], tf.int16),
                               (size, size, size)),
                    tf.float32)
   target = tf.cast(features['target'], tf.float32)

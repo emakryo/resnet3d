@@ -80,9 +80,9 @@ def read(mhdfilename, readrawfile=True):
         tagcontent = linelist[1].strip()
         mhdstrs[tagid] = tagcontent
         if(tagid.lower() == "dimsize"):
-            matrixsize = map(int, tagcontent.split(' '))
+            matrixsize = list(map(int, tagcontent.split(' ')))
         if(tagid.lower() == "elementspacing"):
-            voxelsize = map(float, tagcontent.split(' '))
+            voxelsize = list(map(float, tagcontent.split(' ')))
         if(tagid.lower() == "elementtype"):
             typeid = tagcontent
     #print >> sys.stderr, 'matrixsize', matrixsize

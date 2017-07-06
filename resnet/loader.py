@@ -1,8 +1,8 @@
 import numpy as np
 import readmhd
 
-rawdir = "/export2/PET-CT_iso3mm/"
-moddir = "/home/kamesawa/data/"
+rawdir = "/mnt/nas-public/PET-CT_iso3mm/"
+# moddir = "/home/kamesawa/data/"
 
 abnormal_lung_idx = [2,3,4,5,6,7,8,10,11,13,17,18,22,24,26,27,32,99,122,147,178,227,
                      244,245,246,247,248,264]

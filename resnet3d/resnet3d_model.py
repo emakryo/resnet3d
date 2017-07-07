@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+#
+# Modified for 3D PET-CT data from https://github.com/tensorflow/models/tree/master/resnet
 
 """ResNet model for 3D input.
 

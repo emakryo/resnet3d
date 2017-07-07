@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+#
+# Modified for 3D PET-CT data from https://github.com/tensorflow/models/tree/master/resnet
 
 """ResNet3d Train/Eval module.
 """
@@ -78,7 +80,7 @@ def train(hps):
     """Sets learning_rate based on global step."""
 
     def begin(self):
-      self._lrn_rate = 1e-8
+      self._lrn_rate = hps.lrn_rate
 
     def before_run(self, run_context):
       return tf.train.SessionRunArgs(
@@ -175,7 +177,7 @@ def main(_):
 
   hps = resnet3d_model.HParams(batch_size=batch_size,
                                min_lrn_rate=0.0001,
-                               lrn_rate=0.1,
+                               lrn_rate=1e-8,
                                num_residual_units=5,
                                use_bottleneck=False,
                                weight_decay_rate=0.0002,

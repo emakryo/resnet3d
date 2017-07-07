@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+# 
+# Modified for 3D PET-CT data from https://github.com/tensorflow/models/tree/master/resnet
 
 """PET/CT dataset input module."""
 
@@ -76,6 +78,7 @@ def build_input(data_path, batch_size, size, mode):
   return volumes, targets
 
 def test():
+  """debugging code"""
   vol, tgt = build_input('./tmp.tfrecord', 4, 16, 'train')
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -83,6 +86,3 @@ def test():
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     vol = sess.run(vol)
     print(vol[0,0,0,0], vol.shape)
-
-if __name__=='__main__':
-  test()
